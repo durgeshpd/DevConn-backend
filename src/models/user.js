@@ -42,12 +42,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://t4.ftcdn.net/jpg/02/44/43/69/360_F_244436923_vkMe10KKKiw5bjhZeRDT05moxWcPpdmb.webp",
     },
-    about: {
-        type: String,
-    },
-    skills: {
-        type: [String],
-    },
 });
 
 userSchema.methods.getJWT = async function () {
