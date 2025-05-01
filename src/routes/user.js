@@ -32,7 +32,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
                 { toUserId: loggedInUser._id, status: "accepted" },
                 { fromUserId: loggedInUser._id, status: "accepted" },
             ],
-        });
+        }).populate("toUserId", ["firstName", "lastName"]);
         res.json({ data: connectionRequests });
     } catch (err) {
         res.status(400).send({ message: err.message });
