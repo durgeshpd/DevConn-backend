@@ -11,8 +11,8 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
 
         const connectionRequests = await ConnectionRequest.find({
             toUserId: loggedInUser._id,
-            status: "accepted",
-        }).populate("fromUserId", ["firstName", "lastName"]);
+            status: "interested",
+        }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "age", "gender"]);
 
         res.json({
             message: "Data fetched successfully",
@@ -32,8 +32,11 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
                 { toUserId: loggedInUser._id, status: "accepted" },
                 { fromUserId: loggedInUser._id, status: "accepted" },
             ],
-        }).populate("toUserId", ["firstName", "lastName"]);
-        res.json({ data: connectionRequests });
+        }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "age", "gender"]);
+
+        const data = connectionRequests.map((row) => row.fromUserId);
+
+        res.json({ data });
     } catch (err) {
         res.status(400).send({ message: err.message });
     }

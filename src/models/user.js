@@ -29,12 +29,12 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     age: {
-        type: Number
+        type: Number,
     },
     gender: {
         type: String,
         enum: {
-            values: ["male", "female", "other"],
+            values: ["Male", "Female", "Other"],
             message: `{VALUE} is not a valid gender type`,
         },
     },
