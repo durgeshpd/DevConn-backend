@@ -12,7 +12,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
         const connectionRequests = await ConnectionRequest.find({
             toUserId: loggedInUser._id,
             status: "interested",
-        }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "age", "gender"]);
+        }).populate("fromUserId", ["firstName", "lastName"]);
 
         res.json({
             message: "Data fetched successfully",
@@ -26,21 +26,36 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
 userRouter.get("/user/connections", userAuth, async (req, res) => {
     try {
         const loggedInUser = req.user;
+        console.log("Fetching connections for:", loggedInUser._id);
 
         const connectionRequests = await ConnectionRequest.find({
             $or: [
                 { toUserId: loggedInUser._id, status: "accepted" },
                 { fromUserId: loggedInUser._id, status: "accepted" },
             ],
-        }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "age", "gender"]);
+        })
+        .populate("fromUserId", "firstName lastName photoUrl age gender")
+        .populate("toUserId", "firstName lastName photoUrl age gender");
 
-        const data = connectionRequests.map((row) => row.fromUserId);
+        console.log("Connection requests found:", connectionRequests.length);
+
+        const data = connectionRequests.map((row) => {
+            if (!row.fromUserId || !row.toUserId) {
+                console.error("Missing populated user:", row);
+                return null;
+            }
+
+            const isMeSender = row.fromUserId._id.toString() === loggedInUser._id.toString();
+            return isMeSender ? row.toUserId : row.fromUserId;
+        }).filter(Boolean);
 
         res.json({ data });
     } catch (err) {
+        console.error("Error in /user/connections:", err);
         res.status(400).send({ message: err.message });
     }
 });
+
 
 userRouter.get("/feed", userAuth, async (req, res) => {
     try {
